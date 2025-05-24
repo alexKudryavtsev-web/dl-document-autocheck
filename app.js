@@ -26,7 +26,7 @@ function parseArgs() {
 
 async function checkForUpdates(user, password, documentUrl) {
     try {
-        const browser = await launch({ headless: false });
+        const browser = await launch({ headless: true });
 
         const page = await browser.newPage();
 
