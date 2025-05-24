@@ -1,5 +1,6 @@
 import { launch } from 'puppeteer';
 import { sendTelegramAlert } from './tgbot.js'
+import { getLastModified } from './getLastModified.js';
 
 function parseArgs() {
     const args = process.argv.slice(2);
@@ -44,7 +45,17 @@ function parseArgs() {
         await page.type('#password', password);
         await page.click('input[type="submit"]');
 
-        sendTelegramAlert('Notification!', tgBotToken, tgChatId);
+        await page.waitForNavigation()
+        await page.goto("https://dl.spbstu.ru/mod/resource/view.php?id=198420")
+
+        const redirectURL = await page.$eval('#resourceobject', object => object.getAttribute('data'));
+
+        await page.goto(redirectURL)
+
+        const currentUrl = page.url();
+        const lastModified = await getLastModified(currentUrl)
+
+        sendTelegramAlert(`Notification! ${lastModified}`, tgBotToken, tgChatId);
     } catch (error) {
         console.error('Ошибка:', error);
     }
